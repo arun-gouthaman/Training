@@ -6,8 +6,13 @@ StringFunc::~StringFunc()
 	m_StringVals.clear();
 }
 
-std::vector<std::string> StringFunc::SplitString(const std::string& ipString, const std::string& ipDelimiter)
+std::vector<std::string> StringFunc::SplitString(const std::string& ipString, const std::string& ipDelimiter, bool firstCall)
 {
+	if (!firstCall)
+	{
+		m_StringVals.clear();
+		firstCall = true;
+	}
 	if (ipString.length() < 1)
 	{
 		return m_StringVals;
@@ -24,7 +29,7 @@ std::vector<std::string> StringFunc::SplitString(const std::string& ipString, co
 		m_StringVals.push_back(splitStr);
 		if (ipString.substr(pos + ipDelimiter.length(), ipString.length()).length()+1 > 0)
 		{
-			SplitString(ipString.substr(pos + ipDelimiter.length(), ipString.length()), ipDelimiter);
+			SplitString(ipString.substr(pos + ipDelimiter.length(), ipString.length()), ipDelimiter, firstCall);
 		}
 	}
 	else
@@ -34,16 +39,15 @@ std::vector<std::string> StringFunc::SplitString(const std::string& ipString, co
 	return m_StringVals;
 }
 
-std::vector<int> StringFunc::FindAllPositions(const std::string& ipString, const std::string& findString, int startPos, int posTotal)
+std::vector<int> StringFunc::FindAllPositions(const std::string& ipString, const std::string& findString, int startPos)
 {
-	int pos;
 	if (ipString.find(findString) == std::string::npos)
 	{
 		return m_Positions;
 	}
 	else
 	{
-		pos = ipString.find(findString, startPos);
+		int pos = ipString.find(findString, startPos);
 		m_Positions.push_back(pos);
 		startPos = pos + findString.length();
 		if (startPos < ipString.length())
