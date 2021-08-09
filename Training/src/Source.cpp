@@ -2,35 +2,42 @@
 #include "StringFunc.h"
 #include "AttribParser.h"
 
-int main()
+void SearchVal()
 {
-	std::cout << "TEST" << std::endl;
-	std::vector<std::string> stringVec;
-	std::string filePath = "I:/VS_C++/Training/Training/src/userFile.txt";
 	AttribParser attribParser;
+	std::string filePath = "I:/VS_C++/Training/Training/src/userFile.txt";
 	attribParser.ReadFile(filePath);
-
-	// Search Tag
 	std::cout << attribParser.SearchValue("tag1.tag2.tag3~final") << std::endl;
 	std::cout << attribParser.SearchValue("tag1.tag2.tag3~another") << std::endl;
 	std::cout << attribParser.SearchValue("tag1.tag2~name") << std::endl;
 	std::cout << attribParser.SearchValue("tag1~value") << std::endl;
+}
 
-	/*
-	// Split String function
+void SpliStringTest()
+{
 	StringFunc stringFunc;
-	stringVec = stringFunc.SplitString("test test test", "");
+	std::vector<std::string>stringVec = stringFunc.SplitString("test test test", " ");
 	for (std::string& splitStr : stringVec)
 	{
 		std::cout << "string-> " << splitStr << std::endl;
 	}
+}
 
-	// Find all position
+void FindAllPositionsTest()
+{
+	StringFunc stringFunc;
 	std::vector<int> stringPos = stringFunc.FindAllPositions("test%^Test%^Test%^", "%^");
 	for (int i : stringPos)
 	{
 		std::cout << i << std::endl;
 	}
-	*/
+}
+
+int main()
+{
+	//SearchVal();
+	//SpliStringTest();
+	//FindAllPositionsTest();
+
 	return 0;
 }
