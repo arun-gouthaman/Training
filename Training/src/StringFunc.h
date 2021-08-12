@@ -9,6 +9,6 @@ private:
 	std::vector<int> m_Positions;
 public:
 	~StringFunc();
-	std::vector<std::string> SplitString(const std::string&, const std::string&, bool firstCall = false);
+	std::vector<std::string> SplitString(const std::string&, const std::string&, bool firstCall = true);
 	std::vector<int> FindAllPositions(const std::string&, const std::string&, int startPos = 0);
 };

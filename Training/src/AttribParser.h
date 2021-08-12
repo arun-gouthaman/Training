@@ -16,6 +16,7 @@ private:
 	std::pair<std::vector<std::string>, std::string> SplitInput(const std::string&);
 	std::vector<std::string> SplitTag(const std::string&, const char&);
 	void PrintVecValues(std::vector<std::string>&);
+	const std::string ExtractValue(const std::string&, const std::string&);
 	StringFunc stringFunc;
 	
 };

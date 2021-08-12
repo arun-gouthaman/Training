@@ -8,10 +8,10 @@ StringFunc::~StringFunc()
 
 std::vector<std::string> StringFunc::SplitString(const std::string& ipString, const std::string& ipDelimiter, bool firstCall)
 {
-	if (!firstCall)
+	if (firstCall)
 	{
 		m_StringVals.clear();
-		firstCall = true;
+		firstCall = false;
 	}
 	if (ipString.length() < 1)
 	{
