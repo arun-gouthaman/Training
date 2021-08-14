@@ -40,7 +40,88 @@ const std::string AttribParser::ExtractValue(const std::string& line, const std:
 	return valueStr;
 }
 
+std::string AttribParser::SearchValue(const std::string& userIp)
+{
+	//std::cout << userIp << std::endl;
+	std::vector<std::string> tagVal = stringFunc.SplitString(userIp, "~");
+	std::vector<std::string> tags = stringFunc.SplitString(tagVal[0], ".");
+	std::string value = tagVal[1];
+	int curTagpos = 0;
+	int tagsSize = tags.size();
 
+	bool startTagReached = false;
+	bool endTagReached = false;
+	std::string toBeClosed = "";
+	std::string curTag = tags[curTagpos];
+	bool multiLineComment = false;
+	for (std::string line : m_FileData)
+	{
+		if (line[0] == '#')
+		{
+			continue;
+		}
+		if (!toBeClosed.empty())
+		{
+			if (findStr(line, "</" + toBeClosed))
+			{
+				toBeClosed.clear();
+			}
+			continue;
+		}
+		if (line[0] == '<' && line[1] != '/' && !findStr(line, "<" + curTag))
+		{
+			//std::cout << "To be closed " << line.substr(1, line.find(" ")) << std::endl;
+			if (findStr(line, " "))
+			{
+				toBeClosed = line.substr(1, line.find(" ") - 1);
+			}
+			else if (findStr(line, ">"))
+			{
+				toBeClosed = line.substr(1, line.find(">") - 1);
+			}
+			if (findStr(line, "</" + toBeClosed))
+			{
+				toBeClosed.clear();
+			}
+			continue;
+		}
+		if (!startTagReached)
+		{
+			if(findStr(line, "<" + curTag))
+			{
+				startTagReached = true;
+			}
+			else
+			{
+				continue;
+			}
+		}
+		if (findStr(line, "</" + curTag) ||
+			(curTagpos>0 && findStr(line, "</" + tags[curTagpos-1])))
+		{
+			return "Not Found!";
+		}
+		if (curTagpos == tagsSize - 1)
+		{
+			if (findStr(line, "<" + curTag + " "))
+			{
+				if (findStr(line, value))
+				{
+					return ExtractValue(line, value);
+				}
+			}
+		}
+		else
+		{
+			curTagpos++;
+			curTag = tags[curTagpos];
+		}
+	}
+	return "Not Found!";
+}
+
+/*
+* Working Block
 std::string AttribParser::SearchValue(const std::string& userIp)
 {
 	std::vector<std::string> tagVal = stringFunc.SplitString(userIp, "~");
@@ -138,175 +219,4 @@ std::string AttribParser::SearchValue(const std::string& userIp)
 	}
 	return "End of file reached, unable to find pattern";
 }
-
-
-// WORKS WELL
-//std::string AttribParser::SearchValue(const std::string& userIp)
-//{
-//	std::vector<std::string> tagVal = stringFunc.SplitString(userIp, "~");
-//	std::vector<std::string> tags = stringFunc.SplitString(tagVal[0], ".");
-//
-//	int curTagPos = 0;
-//	bool startTagReached = false;
-//	bool checkForClose = false;
-//	std::string toCloseTag = "";
-//	for (std::string line : m_FileData)
-//	{
-//		if (line._Starts_with("#"))
-//		{
-//			continue;
-//		}
-//		if (!startTagReached)
-//		{
-//			if (checkForClose)
-//			{
-//				if (line.find(toCloseTag) != std::string::npos)
-//				{
-//					checkForClose = false;
-//				}
-//				continue;
-//			}
-//			if (line.find("<tag") != std::string::npos && line.find(tags[curTagPos]) == std::string::npos)
-//			{
-//				toCloseTag = line.substr(line.find("<tag") + 1, 5);
-//				toCloseTag = "</" + toCloseTag;
-//				if (line.find(toCloseTag) == std::string::npos)
-//				{
-//					checkForClose = true;
-//					continue;
-//				}
-//			}
-//
-//			if (line.find(tags[curTagPos]) == std::string::npos)
-//			{
-//				continue;
-//			}
-//			else
-//			{
-//				startTagReached = true;
-//			}
-//		}
-//		if (line.find("/tag") != std::string::npos)
-//		{
-//			return line + " Close Tag found";
-//		}
-//		if (line.find("/" + tags[curTagPos]) != std::string::npos)
-//		{
-//			//std::cout << tags[curTagPos] << " Close Tag Reached" << std::endl;
-//			return tags[curTagPos] + " Close Tag Reached";
-//		}
-//		if (line.find(tags[curTagPos]) != std::string::npos)
-//		{
-//			if (curTagPos == (tags.size() - 1) && line.find(tagVal[1]) != std::string::npos)
-//			{
-//				//std::cout << line << std::endl;
-//				return ExtractValue(line, tagVal[1]);
-//			}
-//			else if(curTagPos < tags.size() - 1)
-//			{
-//				++curTagPos;
-//				continue;
-//			}
-//		}
-//		if (curTagPos == (tags.size() - 1) && line.find(tagVal[1]) != std::string::npos)
-//		{
-//			std::cout << line << std::endl;
-//			return ExtractValue(line, tagVal[1]);
-//		}
-//	}
-//	//std::cout << "Not found" << std::endl;
-//	return "Not found";
-//}
-
-//std::string AttribParser::SearchValue(const std::string& userIp)
-//{
-//	std::vector<std::string> tagVal = stringFunc.SplitString(userIp, "~");
-//	std::vector<std::string> tags = stringFunc.SplitString(tagVal[0], ".");
-//
-//	int curTagPos = 0;
-//	bool tagReached = false;
-//	for (std::string line : m_FileData)
-//	{
-//		if (!tagReached && line.find("tag") == std::string::npos)
-//		{
-//			tagReached = true;
-//			continue;
-//		}
-//		if (line.find("tag") < line.length() && line.find(tags[curTagPos]) > line.length())
-//		{
-//			return "invalid tag";
-//		}
-//		else if (curTagPos == tags.size() - 1)
-//		{
-//			if (line.find(tagVal[1]) < line.length())
-//			{
-//				std::string valueStr = line.substr(line.find(tagVal[1]));
-//				valueStr = valueStr.substr(valueStr.find('"') + 1);
-//				valueStr = valueStr.substr(0, valueStr.find('"'));
-//				return valueStr;
-//			}
-//			else
-//			{
-//				return "value not found in tag";
-//			}
-//		}
-//		if (line.find("/" + tags[curTagPos]) < line.length())
-//		{
-//			return "tag not found";
-//		}
-//		if (line.find(tags[curTagPos]) < line.length())
-//		{
-//			curTagPos += 1;
-//			tagReached = true;
-//		}
-//	}
-//}
-
-std::pair<std::vector<std::string>, std::string> AttribParser::SplitInput(const std::string& userIp)
-{
-	std::vector<std::string> tags;
-	std::pair<std::vector<std::string>, std::string> tagVal(tags, "");
-	bool delimiterChar = false;
-	int charPos = userIp.find("~");
-	if (charPos < userIp.length())
-	{
-		std::string tag = userIp.substr(0, charPos);
-		if (tag.find(".") < tag.length())
-		{
-			tagVal.first = SplitTag(tag, '.');
-		}
-		else
-		{
-			tagVal.first.push_back(tag);
-		}
-		tagVal.second = userIp.substr(charPos+1, userIp.length());
-	}
-	else
-	{
-		std::cout << "split character not found" << std::endl;
-	}
-	return tagVal;
-}
-
-std::vector<std::string> AttribParser::SplitTag(const std::string& tag, const char& seperator)
-{
-	std::vector<std::string> tags;
-	std::string tagVal = "";
-	for (int i = 0; i < tag.length(); i++)
-	{
-		if (tag[i] != seperator)
-		{
-			tagVal += tag[i];
-		}
-		else
-		{
-			tags.push_back(tagVal);
-			tagVal = "";
-		}
-	}
-	if (tagVal.length())
-	{
-		tags.push_back(tagVal);
-	}
-	return tags;
-}
+*/

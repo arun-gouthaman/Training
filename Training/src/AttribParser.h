@@ -18,5 +18,16 @@ private:
 	void PrintVecValues(std::vector<std::string>&);
 	const std::string ExtractValue(const std::string&, const std::string&);
 	StringFunc stringFunc;
+	inline bool findStr(std::string& line, std::string findStr, const int& matchPosition = -1)
+	{
+		if (matchPosition == -1)
+		{
+			return (line.find(findStr) != std::string::npos);
+		}
+		else
+		{
+			return (line.find(findStr) == matchPosition);
+		}
+	}
 	
 };
